@@ -1,0 +1,2 @@
+rootProject.name = "ComposeListPlayground"
+include ':app'
