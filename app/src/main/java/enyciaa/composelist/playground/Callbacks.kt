@@ -5,7 +5,6 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyColumnFor
 import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
@@ -13,9 +12,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.setContent
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.ViewModel
-import enyciaa.composelist.playground.ui.ComposeListPlaygroundTheme
+import enyciaa.composelist.playground.theming.ComposeListPlaygroundTheme
 
 class CallbackListActivity : AppCompatActivity() {
 

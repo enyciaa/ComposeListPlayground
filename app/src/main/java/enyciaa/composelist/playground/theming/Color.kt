@@ -1,4 +1,4 @@
-package enyciaa.composelist.playground.ui
+package enyciaa.composelist.playground.theming
 
 import androidx.compose.ui.graphics.Color
 

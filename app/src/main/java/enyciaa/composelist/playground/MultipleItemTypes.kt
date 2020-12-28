@@ -5,14 +5,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyColumnFor
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.setContent
-import enyciaa.composelist.playground.ui.ComposeListPlaygroundTheme
+import enyciaa.composelist.playground.theming.ComposeListPlaygroundTheme
 
 class MultipleItemActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
