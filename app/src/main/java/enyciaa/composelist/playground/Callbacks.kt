@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyColumnFor
 import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
@@ -27,9 +28,9 @@ class CallbackListActivity : AppCompatActivity() {
                 Surface(color = MaterialTheme.colors.background) {
                     val dataItems = (0..100).map { CallbackListDataItem("Click me", it) }
                     MyCallbackList(
-                            modifier = Modifier.fillMaxSize(),
-                            callbackListDataItem = dataItems,
-                            itemClickedCallback = { callbackViewModel.onListItemClicked(it) }
+                        modifier = Modifier.fillMaxSize(),
+                        callbackListDataItem = dataItems,
+                        itemClickedCallback = { callbackViewModel.onListItemClicked(it) }
                     )
                 }
             }
@@ -38,18 +39,23 @@ class CallbackListActivity : AppCompatActivity() {
 }
 
 data class CallbackListDataItem(
-        val text: String,
-        val number: Int,
+    val text: String,
+    val number: Int,
 )
 
 @Composable
 fun MyCallbackList(
-        modifier: Modifier = Modifier,
-        callbackListDataItem: List<CallbackListDataItem>,
-        itemClickedCallback: (callbackListDataItem: CallbackListDataItem) -> Unit,
+    modifier: Modifier = Modifier,
+    callbackListDataItem: List<CallbackListDataItem>,
+    itemClickedCallback: (callbackListDataItem: CallbackListDataItem) -> Unit,
 ) {
-    LazyColumnFor(modifier = modifier, items = callbackListDataItem) { data ->
-        CallbackListItem(callbackListDataItem = data, itemClickedCallback = itemClickedCallback)
+    LazyColumn(modifier = modifier) {
+        items(callbackListDataItem) { item ->
+            CallbackListItem(
+                callbackListDataItem = item,
+                itemClickedCallback = itemClickedCallback
+            )
+        }
     }
 }
 

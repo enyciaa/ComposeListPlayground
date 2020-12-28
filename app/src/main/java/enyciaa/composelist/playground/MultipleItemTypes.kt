@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyColumnFor
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
@@ -48,10 +49,12 @@ fun MyMultipleItemList(
     modifier: Modifier = Modifier,
     dataItems: List<DataItem>,
 ) {
-    LazyColumnFor(modifier = modifier, items = dataItems) { data ->
-        when (data) {
-            is ItemTypeOne -> ItemOne(itemTypeOne = data)
-            is ItemTypeTwo -> ItemTwo(itemTypeTwo = data)
+    LazyColumn(modifier = modifier) {
+        items(dataItems) { data ->
+            when (data) {
+                is ItemTypeOne -> ItemOne(itemTypeOne = data)
+                is ItemTypeTwo -> ItemTwo(itemTypeTwo = data)
+            }
         }
     }
 }
