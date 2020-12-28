@@ -37,6 +37,9 @@ android {
         kotlinCompilerExtensionVersion compose_version
         kotlinCompilerVersion "1.4.21"
     }
+    kotlinOptions {
+        freeCompilerArgs += "-Xopt-in=kotlinx.coroutines.ExperimentalCoroutinesApi"
+    }
 }
 
 dependencies {

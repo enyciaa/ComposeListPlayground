@@ -34,7 +34,7 @@ fun TodoScreen(
     todoViewModel: TodoViewModel
 ) {
     Surface(color = MaterialTheme.colors.background) {
-        val viewState = todoViewModel.viewStateStream().collectAsState(todoViewModel.defaultViewState())
+        val viewState = todoViewModel.viewStateStream().collectAsState()
         TodoList(
             modifier = Modifier.fillMaxSize(),
             todos = viewState.value.todoList,
@@ -87,13 +87,20 @@ fun TodoItem(
 class TodoViewModel {
 
     private val todoRepository = TodoRepository()
-    private val viewStatePublisher: MutableStateFlow<ViewState> = MutableStateFlow(defaultViewState())
+    private val viewStatePublisher: MutableStateFlow<ViewState> = MutableStateFlow(initViewState())
     private val lastViewState: ViewState
         get() = viewStatePublisher.value
+
+    private fun initViewState(): ViewState {
+        val todos = todoRepository.fetchTodos()
+        return ViewState(todoList = todos)
+    }
 
     fun onAction(uiAction: UiAction) {
         when (uiAction) {
             is UiAction.TodoCompleted -> {
+                // Alternatively, filter out the item
+//                val newList = lastViewState.todoList.filter { it.id != uiAction.todo.id }
                 val newList = lastViewState.todoList.map {
                     if (it.id == uiAction.todo.id) {
                         it.copy(complete = uiAction.isCompleted)
@@ -106,11 +113,6 @@ class TodoViewModel {
         }
     }
 
-    fun defaultViewState(): ViewState {
-        val todos = todoRepository.fetchTodos()
-        return ViewState(todoList = todos)
-    }
-
     data class ViewState(
         val todoList: List<Todo>
     )
@@ -119,11 +121,11 @@ class TodoViewModel {
         class TodoCompleted(val todo: Todo, val isCompleted: Boolean) : UiAction()
     }
 
-    protected fun emit(viewState: ViewState) {
+    private fun emit(viewState: ViewState) {
         viewStatePublisher.value = viewState
     }
 
-    fun viewStateStream(): Flow<ViewState> {
+    fun viewStateStream(): StateFlow<ViewState> {
         return viewStatePublisher.asStateFlow()
     }
 }
@@ -134,7 +136,7 @@ class TodoRepository {
         return (0..100).map {
             Todo(
                 id = it,
-                title = LoremIpsum(3).values.joinToString(" ") { it },
+                title = "Item - $it",
                 complete = Random.nextInt(0, 3) == 0,
             )
         }
