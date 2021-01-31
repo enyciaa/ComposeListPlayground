@@ -1,9 +1,10 @@
-package enyciaa.composelist.playground
+package enyciaa.composelist.playground.list
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -11,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.tooling.preview.datasource.LoremIpsum
 import androidx.compose.ui.unit.dp
+import enyciaa.composelist.playground.paddingValues
 import enyciaa.composelist.playground.theming.ComposeListPlaygroundTheme
 import kotlinx.coroutines.flow.*
 import kotlin.random.Random

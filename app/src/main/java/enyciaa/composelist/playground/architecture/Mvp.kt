@@ -37,11 +37,11 @@ fun MvpDestination(
 ) {
     Surface(color = MaterialTheme.colors.background) {
         val viewState = mvpViewModel.viewStateStream().collectAsState()
-        TodoList(
+        MvpViewModel(
             modifier = Modifier.fillMaxSize(),
             todos = viewState.value.todoList,
             onTodoChecked = { todo, isChecked ->
-                mvpViewModel.onAction(TodoViewModel.UiAction.TodoCompleted(todo, isChecked))
+                mvpViewModel.onAction(MvpViewModel.UiAction.TodoCompleted(todo, isChecked))
             }
         )
     }
