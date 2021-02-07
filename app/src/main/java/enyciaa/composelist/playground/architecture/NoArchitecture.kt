@@ -82,7 +82,7 @@ fun NoArchitectureQuestionDestination(
             Button(onClick = {
                 coroutineScope.launch {
                     isLoading.value = true
-                    withContext(Dispatchers.IO) { answerService.save() }
+                    withContext(Dispatchers.IO) { answerService.save(textState.value.text) }
                     isLoading.value = false
                     onConfirm(textState.value.text)
                 }
