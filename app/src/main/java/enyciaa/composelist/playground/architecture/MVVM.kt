@@ -10,25 +10,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import enyciaa.composelist.playground.list.Todo
-import enyciaa.composelist.playground.list.TodoRepository
-import enyciaa.composelist.playground.list.TodoViewModel
 import enyciaa.composelist.playground.theming.ComposeListPlaygroundTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class MvvmActivity : AppCompatActivity() {
 
     // To inject via dagger, pass the Provider into the nav graph
+    // and then run .get() on the provider to create an instance
     private val mvvmViewModel = MvvmViewModel(AnswerService())
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,7 +47,9 @@ fun MvvmApp(
             MvvmQuestionDestination(
                 mvvmViewModel = mvvmViewModel,
                 // You could pass the nav controller to further composables,
-                // but I like keeping nav logic in a single spot
+                // but I like keeping nav logic in a single spot by using the hoisting pattern
+                // hoisting probably won't work as well in deep hierarchies,
+                // in which case CompositionLocal might be more appropriate
                 onConfirm = { navController.navigate("result") },
             )
         }
@@ -68,24 +66,30 @@ fun MvvmQuestionDestination(
     mvvmViewModel: MvvmViewModel,
     onConfirm: () -> Unit
 ) {
+    val textFieldState = remember { mutableStateOf(TextFieldValue()) }
+
+    // We only want the event stream to be attached once
+    // even if there are multiple re-compositions
+    LaunchedEffect("key") {
+        mvvmViewModel.navigateToResults
+            .onEach { onConfirm() }
+            .collect()
+    }
+
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.SpaceEvenly,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(text = "What do you call a mexican cheese?")
-        val textState = remember { mutableStateOf(TextFieldValue()) }
         TextField(
-            value = textState.value,
-            onValueChange = { textState.value = it }
+            value = textFieldState.value,
+            onValueChange = { textFieldState.value = it }
         )
         if (mvvmViewModel.isLoading.collectAsState().value) {
             CircularProgressIndicator()
         } else {
-            Button(onClick = {
-                mvvmViewModel.confirmAnswer(textState.value.text)
-                onConfirm()
-            }) {
+            Button(onClick = { mvvmViewModel.confirmAnswer(textFieldState.value.text) }) {
                 Text(text = "Confirm")
             }
         }
@@ -110,21 +114,27 @@ class MvvmViewModel(
 ) {
 
     private val coroutineScope = MainScope()
-    val isLoading: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    val textToDisplay: MutableStateFlow<String> = MutableStateFlow("")
+    private val _isLoading: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val isLoading = _isLoading.asStateFlow()
+    private val _textToDisplay: MutableStateFlow<String> = MutableStateFlow("")
+    val textToDisplay = _textToDisplay.asStateFlow()
+    // See https://proandroiddev.com/android-singleliveevent-redux-with-kotlin-flow-b755c70bb055
+    // For why channel > SharedFlow/StateFlow in this case
+    private val _navigateToResults = Channel<Boolean>(Channel.BUFFERED)
+    val navigateToResults = _navigateToResults.receiveAsFlow()
 
     fun confirmAnswer(answer: String) {
         coroutineScope.launch {
-            isLoading.value = true
+            _isLoading.value = true
             withContext(Dispatchers.IO) { answerService.save(answer) }
-            val validatedAnswer = if (answer.isBlank()) "wrong answer" else answer
             val text = if (answer == "Nacho cheese") {
                 "You've heard too many cheese jokes"
             } else {
                 "Nacho cheese"
             }
-            textToDisplay.emit(text)
-            isLoading.value = false
+            _textToDisplay.emit(text)
+            _navigateToResults.send(true)
+            _isLoading.value = false
         }
     }
 }

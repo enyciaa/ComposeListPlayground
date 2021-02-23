@@ -10,7 +10,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ComposeListPlayground">
         <activity
-            android:name=".AndroidViewBugActivity"
+            android:name=".architecture.MvvmActivity"
             android:label="@string/app_name"
             android:theme="@style/Theme.ComposeListPlayground.NoActionBar">
             <intent-filter>
