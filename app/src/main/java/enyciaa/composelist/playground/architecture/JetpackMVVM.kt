@@ -2,18 +2,18 @@ package enyciaa.composelist.playground.architecture
 
 import android.app.Application
 import android.os.Bundle
+import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.*
 import androidx.navigation.compose.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -26,13 +26,14 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import androidx.activity.compose.setContent
 import javax.inject.Inject
 
 @HiltAndroidApp
 class JetpackMvvmApplication : Application()
 
 @AndroidEntryPoint
-class JetpackMvvmActivity : AppCompatActivity() {
+class JetpackMvvmActivity : ComponentActivity() {
 
     private val jetpackMvvmViewModel: JetpackMvvmViewModel by viewModels()
 

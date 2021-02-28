@@ -12,7 +12,7 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.setContent
+import androidx.activity.compose.setContent
 import enyciaa.composelist.playground.theming.ComposeListPlaygroundTheme
 
 class CallbackListActivity : AppCompatActivity() {
