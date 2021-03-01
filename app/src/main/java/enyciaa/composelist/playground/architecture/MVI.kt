@@ -66,9 +66,10 @@ fun MviQuestionDestination(
     mviViewModel: MviViewModel,
     onConfirm: () -> Unit
 ) {
-    val viewState = mviViewModel.viewState.collectAsState()
-
     val textFieldState = remember { mutableStateOf(TextFieldValue()) }
+
+    val viewState = mviViewModel.viewState.collectAsState()
+    val onConfirmClicked = { mviViewModel.onAction(MviViewModel.UiAction.AnswerConfirmed(textFieldState.value.text)) }
 
     // We only want the event stream to be attached once
     // even if there are multiple re-compositions
@@ -95,7 +96,7 @@ fun MviQuestionDestination(
         if (viewState.value.isLoading) {
             CircularProgressIndicator()
         } else {
-            Button(onClick = { mviViewModel.confirmAnswer(textFieldState.value.text) }) {
+            Button(onClick = onConfirmClicked) {
                 Text(text = "Confirm")
             }
         }
@@ -122,25 +123,31 @@ class MviViewModel(
 ) {
 
     private val coroutineScope = MainScope()
+
     private val _viewState: MutableStateFlow<ViewState> = MutableStateFlow(ViewState())
     val viewState = _viewState.asStateFlow()
+
     // See https://proandroiddev.com/android-singleliveevent-redux-with-kotlin-flow-b755c70bb055
     // For why channel > SharedFlow/StateFlow in this case
     private val _oneShotEvents = Channel<OneShotEvent>(Channel.BUFFERED)
     val oneShotEvents = _oneShotEvents.receiveAsFlow()
 
-    fun confirmAnswer(answer: String) {
-        coroutineScope.launch {
-            _viewState.value = _viewState.value.copy(isLoading = true)
-            withContext(Dispatchers.IO) { answerService.save(answer) }
-            val text = if (answer == "Nacho cheese") {
-                "You've heard too many cheese jokes"
-            } else {
-                "Nacho cheese"
+    fun onAction(uiAction: UiAction) {
+        when (uiAction) {
+            is UiAction.AnswerConfirmed -> {
+                coroutineScope.launch {
+                    _viewState.value = _viewState.value.copy(isLoading = true)
+                    withContext(Dispatchers.IO) { answerService.save(uiAction.answer) }
+                    val text = if (uiAction.answer == "Nacho cheese") {
+                        "You've heard too many cheese jokes"
+                    } else {
+                        "Nacho cheese"
+                    }
+                    _viewState.value = _viewState.value.copy(textToDisplay = text)
+                    _oneShotEvents.send(OneShotEvent.NavigateToResults)
+                    _viewState.value = _viewState.value.copy(isLoading = false)
+                }
             }
-            _viewState.value = _viewState.value.copy(textToDisplay = text)
-            _oneShotEvents.send(OneShotEvent.NavigateToResults)
-            _viewState.value = _viewState.value.copy(isLoading = false)
         }
     }
 
@@ -151,5 +158,9 @@ class MviViewModel(
 
     sealed class OneShotEvent {
         object NavigateToResults : OneShotEvent()
+    }
+
+    sealed class UiAction {
+        class AnswerConfirmed(val answer: String) : UiAction()
     }
 }
